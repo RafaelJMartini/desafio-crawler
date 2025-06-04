@@ -53,6 +53,13 @@ class Persistencia:
         logger.info("Verificando tabelas do banco...")
         self.criar_tabelas()
 
+        logger.info("Limpando banco de dados...")
+
+        with self.engine.begin() as conn:
+            conn.execute(text("TRUNCATE quotes_tags, tags, quotes RESTART IDENTITY CASCADE;"))
+
+        logger.info("Banco limpo.")
+
         logger.info("Inserindo Dataframe...")
         with self.engine.connect() as conn:
             for _, row in df.iterrows():
@@ -111,5 +118,5 @@ class Persistencia:
                 """)
             )
 
-            df = pd.DataFrame(dados.fetchall(), columns=dados.keys())
+            df = pd.DataFrame(dados.fetchall())
         return df

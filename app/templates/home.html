@@ -2,53 +2,83 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Controles de Dados</title>
+    <title>Desafio Crawler</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-between py-20 px-4">
 
     <!-- Botão atualizar banco -->
-    <form action="{{ url_for('atualizar_banco') }}" method="post" class="mb-32">
+    <form action="{{ url_for('atualizar_banco') }}" onsubmit="showLoading('Buscando dados para atualizar o banco de dados...')" method="post" class="mb-26">
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition">
             Atualizar Banco de Dados
         </button>
     </form>
 
+    <div id="tempMessage" class="hidden bg-blue-50 border border-blue-300 text-blue-800 font-medium px-4 py-2 rounded-xl shadow-md w-full md:w-[24rem] text-center text-base">
+      Aguarde... já vamos começar seu download!
+    </div>
+
     <div class="flex flex-col md:flex-row gap-8 justify-center mt-16">
 
-    <!-- Bloco CSV -->
-    <div class="bg-white shadow-xl rounded-2xl p-6 w-full md:w-80 text-center">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">CSV</h2>
-        <div class="flex flex-col gap-4">
-            <a href="{{ url_for('download_csv') }}">
-                <button class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition">
-                    Download CSV
-                </button>
-            </a>
-            <a href="{{ url_for('download_live_csv') }}">
-                <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition">
-                    Crawl & Download CSV
-                </button>
-            </a>
+        <!-- Bloco CSV -->
+        <div class="bg-white shadow-xl rounded-2xl p-6 w-full md:w-80 text-center">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">CSV</h2>
+            <div class="flex flex-col gap-4">
+                <a href="{{ url_for('download_csv') }}">
+                    <button class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition">
+                        Download CSV
+                    </button>
+                </a>
+                <a href="{{ url_for('download_live_csv') }}">
+                    <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition" onclick="showTempMessage()">
+                        Crawl & Download CSV
+                    </button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Bloco JSON -->
+        <div class="bg-white shadow-xl rounded-2xl p-6 w-full md:w-80 text-center">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">JSON</h2>
+            <div class="flex flex-col gap-4">
+                <a href="{{ url_for('download_json') }}">
+                    <button class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition">
+                        Download JSON
+                    </button>
+                </a>
+                <a href="{{ url_for('download_live_json') }}">
+                    <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition" onclick="showTempMessage()">
+                        Crawl & Download JSON
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Tela de carregamento -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-xl shadow-lg text-center w-72">
+            <p id="loadingMessage" class="text-lg font-semibold text-gray-800">Carregando...</p>
+            <div class="mt-4 animate-spin h-8 w-8 mx-auto border-4 border-blue-600 border-t-transparent rounded-full"></div>
         </div>
     </div>
 
-    <!-- Bloco JSON -->
-    <div class="bg-white shadow-xl rounded-2xl p-6 w-full md:w-80 text-center">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">JSON</h2>
-        <div class="flex flex-col gap-4">
-            <a href="{{ url_for('download_json') }}">
-                <button class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition">
-                    Download JSON
-                </button>
-            </a>
-            <a href="{{ url_for('download_live_json') }}">
-                <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl transition">
-                    Crawl & Download JSON
-                </button>
-            </a>
-        </div>
-    </div>
+    <script>
+        function showLoading(message = 'Carregando...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const msg = document.getElementById('loadingMessage');
+            msg.textContent = message;
+            overlay.classList.remove('hidden');
+        }
 
+         function showTempMessage(msg = "Aguarde... preparando o download!") {
+            const el = document.getElementById("tempMessage");
+            el.textContent = msg;
+            el.classList.remove("hidden");
+
+            setTimeout(() => {
+              el.classList.add("hidden");
+            }, 15000);
+         }
+    </script>
 </body>
 </html>

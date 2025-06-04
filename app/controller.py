@@ -39,7 +39,7 @@ def download_json():
 def download_live_csv():
     df = crawler()
     df.to_csv(os.path.join(out_dir, "/dados.csv"),index=False)
-    return send_file(os.path.join(out_dir, "/dados.csv"), as_attachment=True)
+    return  send_file(os.path.join(out_dir, "/dados.csv"), as_attachment=True)
 
 @app.route('/download/live-json')
 def download_live_json():
