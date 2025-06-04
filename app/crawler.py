@@ -11,8 +11,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 def crawler() -> pd.DataFrame:
-    out_dir = 'output'
-    os.makedirs(out_dir, exist_ok=True)
     logger.info("Instalando ChromeDriver...")
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
