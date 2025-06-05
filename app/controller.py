@@ -1,7 +1,9 @@
 from app import app
 from app.crawler import crawler
 from app.persistencia import Persistencia
-from flask import render_template,url_for, redirect, send_file
+from app.updateDB import crawl_insert
+from flask import render_template,url_for, redirect, send_file, Response
+import json
 import logging
 import os
 
@@ -18,31 +20,36 @@ def home():
 
 @app.route('/atualizar', methods=['POST'])
 def atualizar_banco():
-    df = crawler()
-    persistencia.grava_pg(df)
+    crawl_insert(persistencia)
     return redirect(url_for('home'))
 
 @app.route('/download/csv')
 def download_csv():
     df = persistencia.consulta_df()
     os.path.join(base_dir, "../output")
-    df.to_csv(os.path.join(out_dir, "/dados.csv"),index=False)
-    return send_file(os.path.join(out_dir, "/dados.csv"), as_attachment=True)
+    df.to_csv(os.path.join(out_dir, "/quotes.csv"),index=False)
+    return send_file(os.path.join(out_dir, "/quotes.csv"), as_attachment=True)
 
 @app.route('/download/json')
 def download_json():
     df = persistencia.consulta_df()
-    df.to_json(os.path.join(out_dir, "/dados.json"))
-    return send_file(os.path.join(out_dir, "/dados.json"), as_attachment=True)
+    df.to_json(os.path.join(out_dir, "/quotes.json"))
+    return send_file(os.path.join(out_dir, "/quotes.json"), as_attachment=True)
 
 @app.route('/download/live-csv')
 def download_live_csv():
     df = crawler()
-    df.to_csv(os.path.join(out_dir, "/dados.csv"),index=False)
-    return  send_file(os.path.join(out_dir, "/dados.csv"), as_attachment=True)
+    df.to_csv(os.path.join(out_dir, "/quotes.csv"),index=False)
+    return  send_file(os.path.join(out_dir, "/quotes.csv"), as_attachment=True)
 
 @app.route('/download/live-json')
 def download_live_json():
     df = crawler()
-    df.to_json(os.path.join(out_dir, "/dados.json"))
-    return send_file(os.path.join(out_dir, "/dados.json"), as_attachment=True)
+    df.to_json(os.path.join(out_dir, "/quotes.json"))
+    return send_file(os.path.join(out_dir, "/quotes.json"), as_attachment=True)
+
+@app.route('/api/quotes')
+def api():
+    df = persistencia.consulta_df()
+    json_data = df.to_json(orient='records')  # 'records' é um formato adequado para listas de objetos
+    return Response(json_data, mimetype='application/json')

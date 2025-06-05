@@ -31,7 +31,7 @@ def crawler() -> pd.DataFrame:
             tags = []
             for tag in elem_tags:
                 tags.append(tag.text)
-            df.loc[len(df)] = [quote.text, autor.text, tags]
+            df.loc[len(df)] = [quote.text.strip('“').strip('”'), autor.text, tags]
         try:
             i += 1
             logger.info(f"Página {i} finalizada.")

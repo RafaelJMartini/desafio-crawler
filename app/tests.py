@@ -1,6 +1,7 @@
 import logging
 from sqlalchemy import text
 import os
+import requests
 logger = logging.getLogger(__name__)
 
 def test_engine(engine):
@@ -17,3 +18,9 @@ def test_dotenv():
     missing = [var for var in required_envs if not os.getenv(var)]
     if missing:
         raise EnvironmentError(f"Variáveis de ambiente ausentes: {', '.join(missing)}")
+
+def test_api(url):
+    response = requests.get(url)
+    logger.info(response.status_code)
+    if response.status_code != 200:
+        logger.error(f"Erro ao conectar ao {url}")
