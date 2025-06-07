@@ -14,7 +14,7 @@ def test_engine(engine):
 
 
 def test_dotenv():
-    required_envs = ['POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_DB']
+    required_envs = ['PGUSER', 'POSTGRES_PASSWORD', 'POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_DB']
     missing = [var for var in required_envs if not os.getenv(var)]
     if missing:
         logger.error(f"Required environment variables {missing}")

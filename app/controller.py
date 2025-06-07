@@ -1,21 +1,23 @@
 from app import app
 from app.crawler import crawler
-from app.persistencia import Persistencia
-from app.updateDB import crawl_insert
-from flask import render_template,url_for, redirect, send_file, Response
+from app.updateDB import crawl_insert,persistencia
+from flask import render_template, url_for, redirect, send_file, Response, jsonify
 import logging
 import os
 
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-persistencia = Persistencia()
 
 BASE_DIR = os.getcwd()
 APP_DIR = os.path.dirname(__file__)
 OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "output"))
 CSV_NAME = 'quotes.csv'
 JSON_NAME = 'quotes.json'
-
+tipos = {
+    "csv":CSV_NAME,
+    "json":JSON_NAME
+}
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -29,29 +31,34 @@ def atualizar_banco():
     crawl_insert(persistencia)
     return redirect(url_for('home'))
 
-@app.route('/download/csv')
-def download_csv():
-    df = persistencia.consulta_df()
-    df.to_csv(os.path.join(OUTPUT_DIR, CSV_NAME),index=False)
-    return send_file(os.path.join(OUTPUT_DIR, CSV_NAME), as_attachment=True)
+@app.route('/download/<tipo>')
+def download(tipo):
+    if tipo not in tipos:
+        logging.error("Tipo de arquivo para download desconhecido")
+        return "Tipo de arquivo inválido", 400
+    return send_file(os.path.join(OUTPUT_DIR, tipos[tipo]), as_attachment=True)
 
-@app.route('/download/json')
-def download_json():
+@app.route('/update/<tipo>')
+def update_output(tipo):
+    if tipo not in tipos:
+        logging.error("Tipo de arquivo para download desconhecido")
+        return "Tipo de arquivo inválido", 400
     df = persistencia.consulta_df()
+    df.to_csv(os.path.join(OUTPUT_DIR, CSV_NAME),index=False,sep=';')
     df.to_json(os.path.join(OUTPUT_DIR, JSON_NAME))
-    return send_file(os.path.join(OUTPUT_DIR, JSON_NAME), as_attachment=True)
+    return redirect(url_for('download',tipo=tipo))
 
 @app.route('/download/live-csv')
 def download_live_csv():
     df = crawler()
-    df.to_csv(os.path.join(OUTPUT_DIR, CSV_NAME),index=False)
-    return  send_file(os.path.join(OUTPUT_DIR, CSV_NAME), as_attachment=True)
+    df.to_csv(os.path.join(OUTPUT_DIR, CSV_NAME),index=False,sep=';')
+    return jsonify({'download_url': url_for('download', tipo='csv')})
 
 @app.route('/download/live-json')
 def download_live_json():
     df = crawler()
     df.to_json(os.path.join(OUTPUT_DIR, JSON_NAME))
-    return send_file(os.path.join(OUTPUT_DIR, JSON_NAME), as_attachment=True)
+    return jsonify({'download_url': url_for('download', tipo='json')})
 
 @app.route('/api/quotes')
 def api():
