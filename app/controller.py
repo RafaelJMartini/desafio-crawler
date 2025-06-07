@@ -5,9 +5,7 @@ from flask import render_template, url_for, redirect, send_file, Response, jsoni
 import logging
 import os
 
-
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 BASE_DIR = os.getcwd()
 APP_DIR = os.path.dirname(__file__)

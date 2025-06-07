@@ -29,6 +29,7 @@ def crawler() -> pd.DataFrame:
             elem_tags = item.find_elements(By.CLASS_NAME,'tag')
 
             quote_text = elem_quote.text.strip('"')
+            quote_text.replace("“","").replace("”","")
 
             if elem_tags:
                 tags = [tag.text for tag in elem_tags]

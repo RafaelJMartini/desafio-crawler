@@ -72,7 +72,7 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
 # Copy the source code into the container.
 COPY . .
 
-RUN mkdir -p /output && chown -R appuser:appuser /output
+RUN mkdir -p /app/output && chown -R appuser:appuser /app/output
 RUN mkdir -p /app/.cache/wdm && chown -R appuser:appuser /app/.cache
 
 # Switch to the non-privileged user to run the application.
