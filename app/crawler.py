@@ -24,13 +24,23 @@ def crawler() -> pd.DataFrame:
     i = 0
     while True:
         for item in driver.find_elements(By.CLASS_NAME,'quote'):
-            quote = item.find_element(By.CLASS_NAME,'text')
-            autor = item.find_element(By.CLASS_NAME,'author')
+            elem_quote = item.find_element(By.CLASS_NAME,'text')
+            elem_autor = item.find_element(By.CLASS_NAME,'author')
             elem_tags = item.find_elements(By.CLASS_NAME,'tag')
-            tags = []
-            for tag in elem_tags:
-                tags.append(tag.text)
-            df.loc[len(df)] = [quote.text.strip('“').strip('”'), autor.text, tags]
+
+            quote_text = elem_quote.text.strip('"')
+
+            if elem_tags:
+                tags = [tag.text for tag in elem_tags]
+            else:
+                tags = ["N/A"]
+
+            df.loc[len(df)] = [
+                quote_text,
+                elem_autor.text,
+                tags
+            ]
+
         try:
             i += 1
             logger.info(f"Página {i} finalizada.")
@@ -40,4 +50,5 @@ def crawler() -> pd.DataFrame:
         except TimeoutException:
             logger.info("Leitura concluída!")
             break
+
     return df

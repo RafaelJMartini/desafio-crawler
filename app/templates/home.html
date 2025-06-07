@@ -5,11 +5,11 @@
     <title>Desafio Crawler</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-between py-20 px-4">
+<body class="bg-gray-200 min-h-screen flex flex-col items-center justify-between py-20 px-4">
 
     <!-- Botão atualizar banco -->
-    <form action="{{ url_for('atualizar_banco') }}" onsubmit="showLoading('Buscando dados para atualizar o banco de dados...')" method="post" class="mb-26">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition">
+    <form action="{{ url_for('atualizar_banco') }}" onsubmit="showLoading('Buscando dados para atualizar o banco de dados...')" method="post" class="mb-10">
+        <button type="submit" class="text-white font-semibold py-3 px-6 rounded-xl shadow-md transition"  style="background-color: rgb(106,87,119);">
             Atualizar Banco de Dados
         </button>
     </form>
@@ -18,39 +18,35 @@
       Aguarde... já vamos começar seu download!
     </div>
 
-    <div class="flex flex-col md:flex-row gap-8 justify-center mt-16">
+    <div class="flex flex-col md:flex-row gap-8 justify-center">
 
         <!-- Bloco CSV -->
-        <div class="bg-white shadow-xl rounded-2xl p-6 w-full md:w-80 text-center">
+        <div class="bg-white shadow-xl rounded-2xl p-4 w-full md:w-80 text-center">
             <h2 class="text-xl font-bold text-gray-800 mb-4">CSV</h2>
             <div class="flex flex-col gap-4">
-                <a href="{{ url_for('download_csv') }}">
-                    <button class="w-full bg-green-600 text-black font-semibold py-3 px-4 rounded-xl transition" style="background-color: rgb(15,209,191);">
+                <a href="{{ url_for('update_output',tipo='csv') }}">
+                    <button class="w-full text-black font-semibold py-3 px-4 rounded-xl" style="background-color: rgb(15,209,191);">
                         Download CSV
                     </button>
                 </a>
-                <a href="{{ url_for('download_live_csv') }}">
-                    <button class="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded-xl transition" style="background-color: rgb(69, 45, 85);" onclick="showTempMessage()">
-                        Crawl & Download CSV
-                    </button>
-                </a>
+                <button class="w-full text-white font-semibold py-3 px-4 rounded-xl" style="background-color: rgb(69, 45, 85);" onclick="handleLiveDownload('csv')">
+                    Crawl & Download CSV
+                </button>
             </div>
         </div>
 
         <!-- Bloco JSON -->
-        <div class="bg-white shadow-xl rounded-2xl p-6 w-full md:w-80 text-center">
+        <div class="bg-white shadow-xl rounded-2xl p-4 w-full md:w-80 text-center">
             <h2 class="text-xl font-bold text-gray-800 mb-4">JSON</h2>
             <div class="flex flex-col gap-4">
-                <a href="{{ url_for('download_json') }}">
-                    <button class="w-full bg-green-600 text-black font-semibold py-3 px-4 rounded-xl transition" style="background-color: rgb(15,209,191);">
+                <a href="{{ url_for('update_output',tipo='json') }}">
+                    <button class="w-full bg-green-600 text-black font-semibold py-3 px-4 rounded-xl" style="background-color: rgb(15,209,191);">
                         Download JSON
                     </button>
                 </a>
-                <a href="{{ url_for('download_live_json') }}">
-                    <button class="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded-xl transition" style="background-color: rgb(69, 45, 85);" onclick="showTempMessage()">
-                        Crawl & Download JSON
-                    </button>
-                </a>
+                <button class="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded-xl" style="background-color: rgb(69, 45, 85);" onclick="handleLiveDownload('json')">
+                    Crawl & Download JSON
+                </button>
             </div>
         </div>
     </div>
@@ -69,16 +65,33 @@
             msg.textContent = message;
             overlay.classList.remove('hidden');
         }
+    </script>
 
-         function showTempMessage(msg = "Aguarde... preparando o download!") {
-            const el = document.getElementById("tempMessage");
-            el.textContent = msg;
-            el.classList.remove("hidden");
+    <script>
+        async function handleLiveDownload(tipo) {
+        showLoading('Crawling...');
+        await startLiveDownload(tipo);
+        }
+
+        async function startLiveDownload(tipo) {
+        try {
+          const response = await fetch(`/download/live-${tipo}`);
+          const data = await response.json();
+
+          if (data.download_url) {
+            window.location.href = data.download_url;
 
             setTimeout(() => {
-              el.classList.add("hidden");
-            }, 15000);
-         }
+              window.location.href = "/";
+            }, 3000);
+          } else {
+            alert("Erro ao obter URL de download.");
+          }
+        } catch (err) {
+          alert("Erro ao processar download.");
+          console.error(err);
+        }
+      }
     </script>
 </body>
 </html>
